@@ -5,8 +5,8 @@ from datetime import datetime
 from wire import *
 
 
-USERNAME = '***REMOVED***'
-PASSWORD = '***REMOVED***'
+USERNAME = '******'
+PASSWORD = '******'
 
 profile = FirefoxProfile()
 profile.set_preference("dom.webnotifications.enabled", False);

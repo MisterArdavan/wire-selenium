@@ -6,8 +6,8 @@ from wire import *
 import os
 
 
-USERNAME = '***REMOVED***'
-PASSWORD = '***REMOVED***'
+USERNAME = '******'
+PASSWORD = '******'
 
 mime_types = 'application/zip,application/octet-stream,image/jpeg,application/vnd.ms-outlook,text/html,application/pdf"'
 profile = FirefoxProfile()
