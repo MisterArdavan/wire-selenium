@@ -5,8 +5,17 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains 
 from datetime import datetime
 import os
+from pathlib import Path
+
+password_path = Path('../passwords.txt')
 
 DOWNLOAD_PATH = os.path.abspath(os.getcwd() + '/download')
+
+def get_credentials(n: 'line # (zero based) in password file for the sender/receiver credentials pair') -> 'dictionary':
+	with open(password_path) as password_file:
+		lines = password_file.readlines()
+		words = lines[n].strip().split()
+		return {'sender': (words[0], words[1]), 'receiver': (words[2], words[3])}
 
 def send_text(driver, text):
 	input_bar = driver.find_element_by_id('conversation-input-bar-text')

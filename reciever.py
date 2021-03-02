@@ -6,8 +6,8 @@ from wire import *
 import os
 
 
-USERNAME = '******'
-PASSWORD = '******'
+username = get_credentials(0)['receiver'][0]
+password = get_credentials(0)['receiver'][1]
 
 mime_types = 'application/zip,application/octet-stream,image/jpeg,application/vnd.ms-outlook,text/html,application/pdf"'
 profile = FirefoxProfile()
@@ -20,7 +20,7 @@ driver = webdriver.Firefox(profile)
 
 output = open('result.txt', 'w')
 
-login(driver, USERNAME, PASSWORD)
+login(driver, username, password)
 go_to_chat(driver, 'Amir')
 number_messages = 1
 while True:

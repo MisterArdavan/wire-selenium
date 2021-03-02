@@ -5,15 +5,15 @@ from datetime import datetime
 from wire import *
 
 
-USERNAME = '******'
-PASSWORD = '******'
+username = get_credentials(0)['sender'][0]
+password = get_credentials(0)['sender'][1]
 
 profile = FirefoxProfile()
 profile.set_preference("dom.webnotifications.enabled", False);
 
 driver = webdriver.Firefox(profile)
 
-login(driver, USERNAME, PASSWORD)
+login(driver, username, password)
 go_to_chat(driver, 'SPIN01')
 
 send_text(driver, 'hello ' + datetime.now().strftime("%H:%M:%S"))
@@ -24,5 +24,5 @@ send_file(driver, '/home/amigh/Documents/wire/test-assets/20MB.zip')
 
 
 # time.sleep(5)
-# logout(driver)
-# driver.close()
+logout(driver)
+driver.close()
