@@ -16,12 +16,12 @@ profile.set_preference("browser.download.manager.showWhenStarting",False)
 profile.set_preference("browser.download.dir", DOWNLOAD_PATH)
 profile.set_preference("browser.helperApps.neverAsk.saveToDisk", mime_types)
 
-driver = webdriver.Firefox(profile)
+driver = webdriver.Firefox(profile, executable_path = '../geckodriver')
 
 output = open('result.txt', 'w')
 
-login(driver, username, password)
-go_to_chat(driver, 'Amir')
+login(driver, USERNAME, PASSWORD)
+go_to_chat(driver, get_credentials(0)['sender'][0].upper())
 number_messages = 1
 while True:
 	messages = get_messages(driver)
