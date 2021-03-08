@@ -24,7 +24,7 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
     message_file_paths = sorted(list(messages_dir_path.glob('**/*')))
     for i in range(message_file_start_idx, message_file_end_idx + 1):
         json_path = message_file_paths[i]
-        print(f'i is {i} file: {json_path.name}')
+        print(f'i is {i}. file: {json_path.name}')
         messages = []
         with open(json_path) as f:
             data = json.load(f)
