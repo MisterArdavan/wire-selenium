@@ -2,16 +2,14 @@ from selenium import webdriver
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import time
 from datetime import datetime
-from wire import get_credentials, go_to_chat, login, send_text, send_file, send_picture, logout
+from wire import get_credentials, go_to_chat, login, send_text, send_file, send_picture, logout, RESTART, QUIT
 from message.message import Message
 from pathlib import Path
 import json
 import argparse
 
-def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx):
-    timestamps_subdir_path = timestamps_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}'
-    timestamps_subdir_path.mkdir(parents=True, exist_ok=False)
-
+def start_browser():
+    "starting browser"
     username = get_credentials(0)['sender'][0]
     password = get_credentials(0)['sender'][1]
 
@@ -20,6 +18,20 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
     driver = webdriver.Firefox(profile, executable_path = '../geckodriver')
     login(driver, username, password)
     go_to_chat(driver, get_credentials(0)['receiver'][0].upper())
+    return driver
+
+def restart_browser(driver):
+    logout(driver)
+    driver.quit()
+    driver = start_browser()
+    return driver
+
+
+def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx):
+    timestamps_subdir_path = timestamps_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}'
+    timestamps_subdir_path.mkdir(parents=True, exist_ok=False)
+
+    driver = start_browser()
 
     message_file_paths = sorted(list(messages_dir_path.glob('**/*')))
     for i in range(message_file_start_idx, message_file_end_idx + 1):
@@ -38,7 +50,7 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
             print(f'Message {j} with id {m.get_id()} is being sent.')
             text = "" if m.get_text() is None else m.get_text()
             attachments = m.get_attachments()
-            wait_time = m.get_timestamp()/1000
+            wait_time = 5#m.get_timestamp()/1000
             time.sleep(wait_time)
             t = datetime.now()
             if m.get_type() == 'text':
@@ -50,8 +62,19 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
             with open(timestamps_subdir_path / f'timestamps_{json_path.stem}.txt', "a") as myfile:
                 myfile.write(t.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(t.timestamp()) + ' ' + str(m.get_id()) + '\n')
         time.sleep(60)
+        # clear_memory(driver) TODO
+        send_text(driver, RESTART)
+        print(f'Sent restart message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        driver = restart_browser(driver)
+        print(f'Done restarting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        time.sleep(60)
+    send_text(driver, QUIT)
+    print(f'Sent quit message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+    time.sleep(10)
     logout(driver)
-    driver.close()
+    time.sleep(10)
+    driver.quit()
+    print(f'Done quitting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
