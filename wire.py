@@ -52,7 +52,7 @@ def get_message_type(message):
 	else:
 		return 'TEXT'
 
-def log_time(file):
+def log_time(file, message_type):
 	t = datetime.now()
 	file.write(t.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(t.timestamp()))
 	file.write('\n')

@@ -43,38 +43,43 @@ def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download
 		count = 0
 		while True:
 			messages = get_messages(driver)
-			if len(messages) > number_messages:
+			message_batch_count = len(messages) > number_messages
+			if message_batch_count > 0:
 				number_messages = len(messages)
-				count += 1
-				print(count)
-				message = messages[-1]
-				message_type = get_message_type(message)
-				if (message_type == 'TEXT'):
-					log_time(output)
-					if get_text(driver, message) == RESTART:
-						driver = restart_browser(driver, download_dir_path)
-						print(f'Done restarting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-						count = 0
-						number_messages = 1
-						continue
-					elif get_text(driver, message) == QUIT:
-						print(f'Got quit message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-						logout(driver)
-						print(f'Done quitting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-						break
-				elif (message_type == 'IMAGE'):
-					download_image(driver, message, download_dir_path)
-					log_time(output)
-				elif (message_type == 'VIDEO'):
-					download_media(driver, message, download_dir_path)
-					log_time(output)
-				elif (message_type == 'AUDIO'):
-					download_media(driver, message, download_dir_path)
-					log_time(output)
-				elif (message_type == 'FILE'):
-					download_file(message, download_dir_path)
-					log_time(output)
-				print('got a message with count', count, datetime.now(), message_type)
+				if message_batch_count > 1:
+					print(f'Overflow {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+				for i in range(message_batch_count):
+					count += 1
+					message = messages[-(i+1)]
+					message_type = get_message_type(message)
+					print(message_type)
+					if (message_type == 'TEXT'):
+						log_time(output, 'TEXT')
+						if get_text(driver, message) == RESTART:
+							driver = restart_browser(driver, download_dir_path)
+							print(f'Done restarting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+							count = 0
+							number_messages = 1
+							continue
+						elif get_text(driver, message) == QUIT:
+							print(f'Got quit message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+							logout(driver)
+							print(f'Done quitting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+							driver.quit()
+							return
+					elif (message_type == 'IMAGE'):
+						download_image(driver, message, download_dir_path)
+						log_time(output, 'IMAGE')
+					elif (message_type == 'VIDEO'):
+						download_media(driver, message, download_dir_path)
+						log_time(output, 'VIDEO')
+					elif (message_type == 'AUDIO'):
+						download_media(driver, message, download_dir_path)
+						log_time(output, 'AUDIO')
+					elif (message_type == 'FILE'):
+						download_file(message, download_dir_path)
+						log_time(output, 'FILE')
+					print('got a message with count', count, datetime.now(), message_type)
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser(
