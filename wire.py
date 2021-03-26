@@ -52,9 +52,9 @@ def get_message_type(message):
 	else:
 		return 'TEXT'
 
-def log_time(file, message_type):
+def log_time(file, message_type, count):
 	t = datetime.now()
-	file.write(t.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(t.timestamp()))
+	file.write(f'{t.strftime("%Y-%m-%d %H:%M:%S")} {str(t.timestamp())} {message_type} count is {count}')
 	file.write('\n')
 	file.flush()
 
@@ -76,7 +76,7 @@ def delete_files(download_dir_path):
 		f.unlink()
 	print('Download folder has been cleared!', str(datetime.now().timestamp()))
 
-def download_image(driver, message, download_dir_path):
+def download_image(driver, message):
 	while True:
 		loading = message.find_elements(By.XPATH, '//div[@class="image-asset loading-dots image-asset--no-image"]')
 		if len(loading) == 0:
@@ -85,9 +85,8 @@ def download_image(driver, message, download_dir_path):
 	message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
 	download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
 	download_button.click()	
-	delete_files(download_dir_path)	
 
-def download_media(driver, message, download_dir_path):
+def download_media(driver, message):
 	while True:
 		loading = message.find_elements(By.XPATH, '//div[@class="asset-placeholder loading-dots"]')
 		if len(loading) == 0:
@@ -101,9 +100,8 @@ def download_media(driver, message, download_dir_path):
 		if len(icon) == 1:
 			print('Download complete!', str(datetime.now().timestamp()))
 			break
-	delete_files(download_dir_path)
 
-def download_file(message, download_dir_path):
+def download_file(message):
 	while True:
 		loading = message.find_elements(By.XPATH, '//div[@class="asset-placeholder loading-dots"]')
 		if len(loading) == 0:
@@ -116,8 +114,6 @@ def download_file(message, download_dir_path):
 		if len(icon) == 1:
 			print('Download complete!')
 			break
-	delete_files(download_dir_path)
-
 
 def send_picture(driver, filepath):
 	driver.find_element_by_xpath("//*[@id='conversation-input-bar-photo']/input").send_keys(filepath)

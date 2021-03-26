@@ -2,7 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import time
 from datetime import datetime
-from wire import login, download_file, get_message_type, get_credentials, get_messages, go_to_chat, log_time, download_image, download_media, get_text, RESTART, QUIT, logout
+from wire import login, download_file, get_message_type, get_credentials, get_messages, go_to_chat, log_time, download_image, download_media, get_text, RESTART, QUIT, logout, delete_files
 import os
 import argparse
 from pathlib import Path
@@ -54,9 +54,10 @@ def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download
 					message_type = get_message_type(message)
 					print(message_type)
 					if (message_type == 'TEXT'):
-						log_time(output, 'TEXT')
+						log_time(output, 'TEXT', count)
 						if get_text(driver, message) == RESTART:
 							driver = restart_browser(driver, download_dir_path)
+							delete_files(download_dir_path)	
 							print(f'Done restarting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
 							count = 0
 							number_messages = 1
@@ -68,17 +69,17 @@ def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download
 							driver.quit()
 							return
 					elif (message_type == 'IMAGE'):
-						download_image(driver, message, download_dir_path)
-						log_time(output, 'IMAGE')
+						download_image(driver, message)
+						log_time(output, 'IMAGE', count)
 					elif (message_type == 'VIDEO'):
-						download_media(driver, message, download_dir_path)
-						log_time(output, 'VIDEO')
+						download_media(driver, message)
+						log_time(output, 'VIDEO', count)
 					elif (message_type == 'AUDIO'):
-						download_media(driver, message, download_dir_path)
-						log_time(output, 'AUDIO')
+						download_media(driver, message)
+						log_time(output, 'AUDIO', count)
 					elif (message_type == 'FILE'):
-						download_file(message, download_dir_path)
-						log_time(output, 'FILE')
+						download_file(message)
+						log_time(output, 'FILE', count)
 					print('got a message with count', count, datetime.now(), message_type)
 
 if __name__ == "__main__":
