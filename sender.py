@@ -50,7 +50,7 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
             print(f'Message {j} with id {m.get_id()} is being sent.')
             text = "" if m.get_text() is None else m.get_text()
             attachments = m.get_attachments()
-            wait_time = 5#m.get_timestamp()/1000
+            wait_time = m.get_timestamp()/1000
             time.sleep(wait_time)
             t = datetime.now()
             if m.get_type() == 'text':

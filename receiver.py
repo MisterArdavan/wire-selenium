@@ -43,7 +43,7 @@ def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download
 		count = 0
 		while True:
 			messages = get_messages(driver)
-			message_batch_count = len(messages) > number_messages
+			message_batch_count = len(messages) - number_messages
 			if message_batch_count > 0:
 				number_messages = len(messages)
 				if message_batch_count > 1:
