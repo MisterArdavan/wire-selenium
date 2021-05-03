@@ -28,7 +28,7 @@ def restart_browser(driver):
 
 
 def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx):
-    timestamps_subdir_path = timestamps_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}'
+    timestamps_subdir_path = timestamps_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}' / 'timestamps'
     timestamps_subdir_path.mkdir(parents=True, exist_ok=False)
 
     driver = start_browser()
@@ -55,8 +55,8 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
             t = datetime.now()
             if m.get_type() == 'text':
                 send_text(driver, text)
-            elif (attachments[0])[-4:] == '.png':
-                send_picture(driver, f'{(message_content_dir_path / Path(attachments[0][44:])).resolve()}')
+            # elif (attachments[0])[-4:] == '.png':
+            #     send_picture(driver, f'{(message_content_dir_path / Path(attachments[0][44:])).resolve()}')
             else:
                 send_file(driver, f'{(message_content_dir_path / Path(attachments[0][44:])).resolve()}')
             with open(timestamps_subdir_path / f'timestamps_{json_path.stem}.txt', "a") as myfile:

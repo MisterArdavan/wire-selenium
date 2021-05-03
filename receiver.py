@@ -98,7 +98,7 @@ if __name__ == "__main__":
     )
 	parser.add_argument(
 		'message_file_end_idx',
-		metavar='MESSAGE_FILE_START_IDX', type=int,
+		metavar='MESSAGE_FILE_END_IDX', type=int,
 		help='Ending index for message files to be sent'
     )
 	parser.add_argument(
