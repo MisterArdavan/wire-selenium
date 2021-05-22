@@ -58,6 +58,11 @@ def log_time(file, message_type, count):
 	file.write('\n')
 	file.flush()
 
+def log_control_message_time(file, message_type, count, t):
+	file.write(f'{t.strftime("%Y-%m-%d %H:%M:%S")} {str(t.timestamp())} {message_type} count is {count}')
+	file.write('\n')
+	file.flush()
+
 def get_messages(driver):
 	messages = driver.find_elements(By.CLASS_NAME, 'message')
 	return messages

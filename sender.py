@@ -47,10 +47,10 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
 
         for j in range(len(messages)):
             m = messages[j]
-            print(f'Message {j} with id {m.get_id()} is being sent.')
+            print(f'Message {j+1} with id {m.get_id()} and type {m.get_type()} is being sent.')
             text = "" if m.get_text() is None else m.get_text()
             attachments = m.get_attachments()
-            wait_time = m.get_timestamp()/1000
+            wait_time = 7#m.get_timestamp()/1000
             time.sleep(wait_time)
             t = datetime.now()
             if m.get_type() == 'text':
@@ -60,7 +60,7 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
             else:
                 send_file(driver, f'{(message_content_dir_path / Path(attachments[0][44:])).resolve()}')
             with open(timestamps_subdir_path / f'timestamps_{json_path.stem}.txt', "a") as myfile:
-                myfile.write(t.strftime("%Y-%m-%d %H:%M:%S") + ' ' + str(t.timestamp()) + ' ' + str(m.get_id()) + '\n')
+                myfile.write(f'{t.strftime("%Y-%m-%d %H:%M:%S")} {t.timestamp()} id: {m.get_id()} count: {j+1} {m.get_type()}\n')
         time.sleep(60)
         # clear_memory(driver) TODO
         send_text(driver, RESTART)
