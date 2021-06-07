@@ -38,7 +38,7 @@ def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download
 
 	driver = start_browser(download_dir_path)
 
-	with open(traces_subdir_path / f'traces_{message_file_start_idx}_{message_file_end_idx}.txt', 'w') as output:
+	with open(traces_subdir_path / f'traces_{message_file_start_idx}_{message_file_end_idx}.txt', 'a') as output:
 		number_messages = 1 
 		count = 0
 		while True:
