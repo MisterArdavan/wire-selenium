@@ -87,9 +87,11 @@ def download_image(driver, message):
 		if len(loading) == 0:
 			print('Loading complete!')
 			break
-	message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
-	download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
-	download_button.click()	
+	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@class="message-body-actions"]/span'))).click()
+	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@data-uie-name="message-options-menu"]'))).click()
+	# message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
+	# download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
+	# download_button.click()	
 
 def download_media(driver, message):
 	while True:
@@ -97,27 +99,30 @@ def download_media(driver, message):
 		if len(loading) == 0:
 			print('Loading complete!')
 			break
-	message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
-	download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
-	download_button.click()
+	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@class="message-body-actions"]/span'))).click()
+	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@data-uie-name="message-options-menu"]'))).click()
+	# message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
+	# download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
+	# download_button.click()
 	while True:
 		icon = message.find_elements(By.XPATH, './/div[@data-uie-name="do-play-media"]')
 		if len(icon) == 1:
 			print('Download complete!', str(datetime.now().timestamp()))
 			break
 
-def download_file(message):
+def download_file(driver, message):
 	while True:
 		loading = message.find_elements(By.XPATH, '//div[@class="asset-placeholder loading-dots"]')
 		if len(loading) == 0:
 			print('Loading complete!')
 			break
-	message.find_element(By.XPATH, './/div[@data-uie-name="file"]').click()
+	# message.find_element(By.XPATH, './/div[@data-uie-name="file"]').click()
+	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@data-uie-name="file"]'))).click()
 	print('Downloading ... ')
 	while True:
 		icon = message.find_elements(By.XPATH, './/div[@data-uie-name="file-icon"]')
 		if len(icon) == 1:
-			print('Download complete!')
+			print('Download complete!', str(datetime.now().timestamp()))
 			break
 
 def send_picture(driver, filepath):

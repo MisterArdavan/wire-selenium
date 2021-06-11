@@ -91,7 +91,7 @@ def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download
 						log_time(output, 'AUDIO', count)
 					elif (message_type == 'FILE'):
 						count += 1
-						download_file(message)
+						download_file(driver, message)
 						log_time(output, 'FILE', count)
 					print('got a message with count', count, datetime.now(), message_type)
 
