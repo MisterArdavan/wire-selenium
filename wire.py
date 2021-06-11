@@ -87,7 +87,7 @@ def download_image(driver, message):
 		if len(loading) == 0:
 			print('Loading complete!')
 			break
-	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@class="message-body-actions"]/span'))).click()
+	WebDriverWait(message, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@class="message-body-actions"]/span'))).click()
 	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@data-uie-name="message-options-menu"]'))).click()
 	# message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
 	# download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
@@ -99,7 +99,7 @@ def download_media(driver, message):
 		if len(loading) == 0:
 			print('Loading complete!')
 			break
-	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@class="message-body-actions"]/span'))).click()
+	WebDriverWait(message, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@class="message-body-actions"]/span'))).click()
 	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//div[@data-uie-name="message-options-menu"]'))).click()
 	# message.find_element(By.XPATH, './/div[@class="message-body-actions"]/span').click()
 	# download_button = driver.find_elements(By.XPATH, '//div[@data-uie-name="message-options-menu"]')[0]
@@ -117,7 +117,7 @@ def download_file(driver, message):
 			print('Loading complete!')
 			break
 	# message.find_element(By.XPATH, './/div[@data-uie-name="file"]').click()
-	WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@data-uie-name="file"]'))).click()
+	WebDriverWait(message, 10).until(EC.presence_of_element_located((By.XPATH, './/div[@data-uie-name="file"]'))).click()
 	print('Downloading ... ')
 	while True:
 		icon = message.find_elements(By.XPATH, './/div[@data-uie-name="file-icon"]')
