@@ -1,3 +1,4 @@
+import string
 from selenium import webdriver
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 import time
@@ -6,7 +7,31 @@ from wire import get_credentials, go_to_chat, login, send_text, send_file, send_
 from message.message import Message
 from pathlib import Path
 import json
-import argparse
+import argparse, subprocess, signal
+
+def connect_to_vpn(vpn_conf_path):
+    command = [
+        'sudo',
+        'openvpn',
+        vpn_conf_path
+    ]
+    vpn_process = subprocess.Popen(command)
+    print(str(vpn_process.pid))
+    time.sleep(20)
+    return vpn_process 
+
+def disconnect_vpn(vpn_process):
+    pid = vpn_process.pid
+    command = [
+        'sudo',
+        'killall',
+        'openvpn',
+    ]
+    completed_process = subprocess.run(command)
+    if completed_process.returncode:
+            "VPN process returned with error."
+            raise SystemError(f'VPN Process Returned with error. Return code is {completed_process.returncode} for process with pid {pid}.')
+    return
 
 def start_browser():
     "starting browser"
@@ -26,11 +51,18 @@ def restart_browser(driver):
     driver = start_browser()
     return driver
 
+def restart_vpn(vpn_process, vpn_conf_path):
+    disconnect_vpn(vpn_process)
+    vpn = connect_to_vpn(vpn_conf_path)
+    return vpn
 
-def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx):
+
+def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx, vpn_conf_path = None, password = None):
     timestamps_subdir_path = timestamps_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}' / 'timestamps'
     timestamps_subdir_path.mkdir(parents=True, exist_ok=False)
 
+    if vpn_conf_path is not None:
+        vpn_process = connect_to_vpn(vpn_conf_path)
     driver = start_browser()
 
     message_file_paths = sorted(list(messages_dir_path.glob('**/*')))
@@ -65,6 +97,8 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
         # clear_memory(driver) TODO
         send_text(driver, RESTART)
         print(f'Sent restart message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
+        if vpn_conf_path is not None:
+            restart_vpn(vpn_process, vpn_conf_path)
         driver = restart_browser(driver)
         print(f'Done restarting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
         time.sleep(60)
@@ -105,5 +139,15 @@ if __name__ == "__main__":
         metavar='MESSAGE_FILE_END_IDX', type=int,
         help='Ending index for message files to be sent'
     )
+    parser.add_argument(
+        '--vpn-conf-path',
+        metavar='VPN_CONF_PATH', type=Path,
+        help='path to openvpn conf file'
+    )
+    # parser.add_argument(
+    #     '--password',
+    #     metavar='PASSWORD', type=string,
+    #     help='sudo password'
+    # )
     args = parser.parse_args()
     main(**vars(args))
