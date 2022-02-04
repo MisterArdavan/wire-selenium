@@ -9,24 +9,37 @@ from pathlib import Path
 import json
 import argparse, subprocess, signal
 
-def connect_to_vpn(vpn_conf_path):
-    command = [
-        'sudo',
-        'openvpn',
-        vpn_conf_path
-    ]
+def connect_to_vpn(vpn_conf_path, nordvpn_server):
+    if vpn_conf_path is not None:
+        command = [
+            'sudo',
+            'openvpn',
+            vpn_conf_path
+        ]
+    else:
+        command = [
+            'nordvpn',
+            'connect',
+            nordvpn_server
+        ]
     vpn_process = subprocess.Popen(command)
     print(str(vpn_process.pid))
     time.sleep(20)
     return vpn_process 
 
-def disconnect_vpn(vpn_process):
-    pid = vpn_process.pid
-    command = [
-        'sudo',
-        'killall',
-        'openvpn',
-    ]
+def disconnect_vpn(vpn_process, vpn_conf_path):
+    if vpn_conf_path is not None:
+        pid = vpn_process.pid
+        command = [
+            'sudo',
+            'killall',
+            'openvpn',
+        ]
+    else:
+        command = [
+            'nordvpn',
+            'disconnect'
+        ]
     completed_process = subprocess.run(command)
     if completed_process.returncode:
             "VPN process returned with error."
@@ -51,18 +64,18 @@ def restart_browser(driver):
     driver = start_browser()
     return driver
 
-def restart_vpn(vpn_process, vpn_conf_path):
-    disconnect_vpn(vpn_process)
-    vpn = connect_to_vpn(vpn_conf_path)
+def restart_vpn(vpn_process, vpn_conf_path, nordvpn_server):
+    disconnect_vpn(vpn_process, vpn_conf_path)
+    vpn = connect_to_vpn(vpn_conf_path, nordvpn_server)
     return vpn
 
 
-def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx, vpn_conf_path = None, password = None):
+def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, message_file_start_idx, message_file_end_idx, vpn_conf_path = None, nordvpn_server = None):
     timestamps_subdir_path = timestamps_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}' / 'timestamps'
     timestamps_subdir_path.mkdir(parents=True, exist_ok=False)
 
-    if vpn_conf_path is not None:
-        vpn_process = connect_to_vpn(vpn_conf_path)
+    if vpn_conf_path is not None or nordvpn_server is not None:
+        vpn_process = connect_to_vpn(vpn_conf_path, nordvpn_server)
     driver = start_browser()
 
     message_file_paths = sorted(list(messages_dir_path.glob('**/*')))
@@ -97,11 +110,11 @@ def main(messages_dir_path, message_content_dir_path, timestamps_dir_path, messa
         # clear_memory(driver) TODO
         send_text(driver, RESTART)
         print(f'Sent restart message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-        if vpn_conf_path is not None:
-            restart_vpn(vpn_process, vpn_conf_path)
+        if vpn_conf_path is not None or nordvpn_server is not None:
+            restart_vpn(vpn_process, vpn_conf_path, nordvpn_server)
         driver = restart_browser(driver)
         print(f'Done restarting at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
-        time.sleep(60)
+        time.sleep(240)
     send_text(driver, QUIT)
     print(f'Sent quit message at {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}')
     time.sleep(10)
@@ -144,10 +157,11 @@ if __name__ == "__main__":
         metavar='VPN_CONF_PATH', type=Path,
         help='path to openvpn conf file'
     )
-    # parser.add_argument(
-    #     '--password',
-    #     metavar='PASSWORD', type=string,
-    #     help='sudo password'
-    # )
+    parser.add_argument(
+        '--nordvpn-server',
+        metavar='OPENVPN_SERVER',
+        help='OpenVPN Server Name'
+    )
+
     args = parser.parse_args()
     main(**vars(args))
