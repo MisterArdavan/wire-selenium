@@ -6,8 +6,29 @@ from wire import log_control_message_time, login, download_file, get_message_typ
 import os
 import argparse
 from pathlib import Path
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
 
-def start_browser(download_dir_path):
+
+def set_proxy(driver, address, port, usernamex, passwordx):
+    proxy_address_xpath = '//*[@id="proxyAddress"]'
+    proxy_address_box = driver.find_element_by_xpath(proxy_address_xpath)
+    proxy_address_box.send_keys(address)
+    proxy_port_xpath = '//*[@id="proxyPort"]'
+    proxy_port_box = driver.find_element_by_xpath(proxy_port_xpath)
+    proxy_port_box.send_keys(port)
+    proxy_username_xpath = '//*[@id="proxyUsername"]'
+    proxy_username_box = driver.find_element_by_xpath(proxy_username_xpath)
+    proxy_username_box.send_keys(usernamex)
+    proxy_pass_xpath = '//*[@id="proxyPassword"]'
+    proxy_pass_box = driver.find_element_by_xpath(proxy_pass_xpath)
+    proxy_pass_box.send_keys(passwordx)
+    save_xpath = '/html/body/div[2]/div[2]/button[4]'
+    save_box = driver.find_element_by_xpath(save_xpath)
+    save_box.click()
+
+def start_browser(download_dir_path, foxyproxy_path, proxy_server_ip, proxy_server_port, proxy_server_username, proxy_server_password):
 	username = get_credentials(0)['receiver'][0]
 	password = get_credentials(0)['receiver'][1]
 
@@ -20,6 +41,39 @@ def start_browser(download_dir_path):
 	profile.set_preference("browser.helperApps.neverAsk.saveToDisk", mime_types)
 
 	driver = webdriver.Firefox(profile, executable_path = '../geckodriver')
+
+	if foxyproxy_path is not None:
+		driver.install_addon(foxyproxy_path, temporary=None)
+		time.sleep(2)
+		driver.switch_to.window(driver.window_handles[1])
+		driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+		# go to the page where you can add the proxies
+		xpath_back ="/html/body/div[2]/div[2]/button"
+		WebDriverWait(driver, timeout=10).until(EC.element_to_be_clickable((By.XPATH, xpath_back))).click()
+
+		time.sleep(5)
+		# add proxy
+		add_xpath = "/html/body/div[4]/div/nav/a[1]"
+		WebDriverWait(driver, timeout=30).until(EC.element_to_be_clickable((By.XPATH, add_xpath))).click()
+			
+		# select proxy type (in my case socks5)
+		type_xpath = '//*[@id="proxyType"]'
+		type_box = driver.find_element_by_xpath(type_xpath)
+		type_box.click()
+			
+		socks5_xpath = '/html/body/div[2]/div[1]/div[2]/div[1]/select/option[3]'
+		socks5_box = driver.find_element_by_xpath(socks5_xpath)
+		socks5_box.click()
+			
+		# write the proxy stuff
+		set_proxy(driver, proxy_server_ip, proxy_server_port, proxy_server_username,  proxy_server_password)
+		change_xpath = '//*[@id="mode"]'
+		WebDriverWait(driver, timeout=10).until(EC.element_to_be_clickable((By.XPATH, change_xpath))).click()
+
+		select_xpath = '/html/body/div[4]/div/div/div[1]/select/option[2]'
+		WebDriverWait(driver, timeout=10).until(EC.element_to_be_clickable((By.XPATH, select_xpath))).click()
+		driver.switch_to.window(driver.window_handles[0])
+
 	login(driver, username, password)
 	go_to_chat(driver, get_credentials(0)['sender'][0].upper())
 	return driver
@@ -31,12 +85,12 @@ def restart_browser(driver, download_dir_path):
 	driver = start_browser(download_dir_path)
 	return driver
 
-def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download_dir_path):
+def main(traces_dir_path, message_file_start_idx, message_file_end_idx, download_dir_path, foxyproxy_path, proxy_server_ip, proxy_server_port, proxy_server_username, proxy_server_password):
 	traces_subdir_path = traces_dir_path / f'{message_file_start_idx:03}_{message_file_end_idx:03}'
 	traces_subdir_path.mkdir(parents=True, exist_ok=True)
 	download_dir_path.mkdir(parents=True, exist_ok=True)
 
-	driver = start_browser(download_dir_path)
+	driver = start_browser(download_dir_path, foxyproxy_path, proxy_server_ip, proxy_server_port, proxy_server_username, proxy_server_password)
 
 	with open(traces_subdir_path / f'traces_{message_file_start_idx}_{message_file_end_idx}.txt', 'a') as output:
 		number_messages = 1 
@@ -118,6 +172,31 @@ if __name__ == "__main__":
 		'download_dir_path',
 		metavar='DOWNLOAD_DIR_PATH', type=Path,
 		help='Path to directory for downloading attachments'
+	)
+	parser.add_argument(
+		'foxyproxy_path',
+		metavar='FOXYPROXY_PATH', type=Path,
+		help='Path to foxyproxy add-on xpi file'
+	)
+	parser.add_argument(
+		'proxy_server_ip',
+		metavar='PROXY_SERVER_IP', type=Path,
+		help='IP address of the proxy server'
+	)
+	parser.add_argument(
+		'proxy_server_port',
+		metavar='PROXY_SERVER_PORT', type=Path,
+		help='Port number of the proxy server'
+	)
+	parser.add_argument(
+		'proxy_server_username',
+		metavar='PROXY_SERVER_USERNAME', type=Path,
+		help='username of the proxy server'
+	)
+	parser.add_argument(
+		'proxy_server_password',
+		metavar='PROXY_SERVER_PASSWORD', type=Path,
+		help='password of the proxy server'
 	)
 	args = parser.parse_args()
 	main(**vars(args))

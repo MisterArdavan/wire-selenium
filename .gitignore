@@ -182,3 +182,4 @@ dmypy.json
 download/*
 geckodriver.log
 bfg-1.13.2.jar
+config.txt
