@@ -180,22 +180,22 @@ if __name__ == "__main__":
 	)
 	parser.add_argument(
 		'proxy_server_ip',
-		metavar='PROXY_SERVER_IP', type=Path,
+		metavar='PROXY_SERVER_IP', type=str,
 		help='IP address of the proxy server'
 	)
 	parser.add_argument(
 		'proxy_server_port',
-		metavar='PROXY_SERVER_PORT', type=Path,
+		metavar='PROXY_SERVER_PORT', type=str,
 		help='Port number of the proxy server'
 	)
 	parser.add_argument(
 		'proxy_server_username',
-		metavar='PROXY_SERVER_USERNAME', type=Path,
+		metavar='PROXY_SERVER_USERNAME', type=str,
 		help='username of the proxy server'
 	)
 	parser.add_argument(
 		'proxy_server_password',
-		metavar='PROXY_SERVER_PASSWORD', type=Path,
+		metavar='PROXY_SERVER_PASSWORD', type=str,
 		help='password of the proxy server'
 	)
 	args = parser.parse_args()
